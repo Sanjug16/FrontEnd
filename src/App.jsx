@@ -7,6 +7,7 @@ import { UserDashBoard } from './components/UserDashBoard'
 import { CarListings } from './components/CarListings'
 import ProtectedRoute from './components/ProtectedRoute'
 import Profile from './components/Profile'
+import { NewCar } from './components/NewCar'
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
         <Route path="/login" element={<Login/>}/>
 
         <Route path="/profile" element={<Profile/>}/>
+
+        <Route path="/addCar" element={<NewCar/>}/>
 
         <Route path="/register" element ={<Register/>}/>
         

@@ -18,7 +18,7 @@ const Profile = () => {
   const userCars = []; // Empty array for testing "no cars" scenario
   
   const handleAddCar = () => {
-    navigate('/add-car'); // Create this route and component
+    navigate('/addcar'); // Create this route and component
   };
 
   return (
