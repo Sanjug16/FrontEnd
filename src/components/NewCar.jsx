@@ -13,6 +13,7 @@ export function NewCar() {
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const username = localStorage.getItem('username');
+  const ownerId = localStorage.getItem('userId');
   const [formData, setFormData] = useState({
     make: '',
     model: '',
@@ -20,8 +21,8 @@ export function NewCar() {
     mileage: '',
     carLocation: '',
     carPrice: '',
-    totalNoOfOwners: '',
-    saleDecision: 1
+    totalNoOfOwners: ''
+    // saleDecision: 1
   });
   const [images, setImages] = useState([]);
   const [errors, setErrors] = useState({});
@@ -101,85 +102,61 @@ export function NewCar() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newErrors = validateForm();
-  
-    if (Object.keys(newErrors).length === 0) {
-      try {
-        const formDataToSend = new FormData();
-        
-        // Append car details as JSON
-        formDataToSend.append('data', JSON.stringify(formData));
-        
-        // Append images
-        images.forEach((image, index) => {
-          formDataToSend.append('images', image);
-        });
-  
-        // Retrieve token for authentication
-        const token = localStorage.getItem('token');
-  
-        const response = await axios.post(
-          'http://localhost:6969/cars/add',  // ✅ Updated API endpoint
-          formDataToSend,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data'
-            }
-          }
-        );
-  
-        if (response.data) {
-          alert('Car added successfully!');
-          navigate('/profile');  // ✅ Redirect to user profile after success
-        }
-      } catch (error) {
-        console.error('Error adding car:', error);
-        alert('Failed to add car. Please try again.');
-      }
-    } else {
-      setErrors(newErrors);
-    }
-  };
-  
+  e.preventDefault();
+  const newErrors = validateForm();
 
+  if (Object.keys(newErrors).length === 0) {
+    try {
+      const formDataToSend = new FormData();
+
+      // ✅ Ensure ownerId is included properly
+      const updatedFormData = { ...formData, ownerId: ownerId };
+      formDataToSend.append('data', JSON.stringify(updatedFormData));
+
+      // ✅ Ensure "image" matches the backend parameter
+      images.forEach((image) => {
+        formDataToSend.append('image', image);
+      });
+
+      // ✅ Get token
+      const token = localStorage.getItem('token');
+
+      // ✅ Remove 'Content-Type' header
+      const response = await axios.post(
+        'http://localhost:6969/cars/addCarWithImage',
+        formDataToSend,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      console.log("Response:", response.data);
+      alert('Car added successfully!');
+      navigate('/profile');
+    } catch (error) {
+      console.error('Error adding car:', error);
+      alert('Failed to add car. Please try again.');
+    }
+  } else {
+    setErrors(newErrors);
+  }
+};
   // Add this function for logout
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('userToken');
-    setIsAuthenticated(false);
-    navigate('/home');
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem('token');
+  //   localStorage.removeItem('username');
+  //   localStorage.removeItem('userToken');
+  //   setIsAuthenticated(false);
+  //   navigate('/home');
+  // };
 
   return (
-    <div className="new-car-container">
-      {/* Add the header */}
-      <div className="listings-header">
-        <div className="logo" onClick={() => navigate('/dashboard')}>
-          <img src={carLogo} alt="Car Logo" className="car-logo" />
-          <h1>Add New Car</h1>
-        </div>
-        
-        <div className="user-section">
-          <div className="user-icon" ref={menuRef} onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <span className="username">{username}</span>
-            <img src={userIcon} alt="User Icon" />
-            {isMenuOpen && (
-              <div className="user-menu">
-                <button onClick={() => navigate('/dashboard')}>Dashboard</button>
-                <button onClick={() => navigate('/cars')}>Browse Cars</button>
-                <button onClick={handleLogout}>Logout</button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
+    <div className="newcar-container">
       <div className="new-car-card">
         <h1>Add New Car</h1>
-        <form onSubmit={handleSubmit} className="new-car-form">
+        <form onSubmit={handleSubmit} className="newcar-form">
           <div className="form-section">
             <div className="form-group">
               <label htmlFor="make">Make</label>
@@ -235,7 +212,7 @@ export function NewCar() {
                   className={errors.mileage ? 'error' : ''}
                   placeholder="Enter mileage"
                 />
-                {errors.mileage && <span className="error-message">{errors.mileage}</span>}
+                {errors.mileage && <span className="newcar-error">{errors.mileage}</span>}
               </div>
             </div>
 
@@ -295,7 +272,7 @@ export function NewCar() {
                 className={errors.images ? 'error' : ''}
               />
               {errors.images && <span className="error-message">{errors.images}</span>}
-              <div className="image-preview">
+              <div className="newcar-image-preview">
                 {images.map((image, index) => (
                   <img
                     key={index}
@@ -308,11 +285,11 @@ export function NewCar() {
           </div>
 
           <div className="form-actions">
-            <button type="button" className="cancel-btn" onClick={() => navigate('/sell')}>
-              Cancel
-            </button>
-            <button type="submit" className="submit-btn">
+            <button type="submit" className='submit-button'>
               Add Car
+            </button>
+            <button type="button" className="cancel-btn" onClick={() => navigate('/dashboard')}>
+              Cancel
             </button>
           </div>
         </form>

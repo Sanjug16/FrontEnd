@@ -59,9 +59,10 @@ const Login = () => {
 
         if (response.data) {
           // Extract relevant data
-          const { username, token } = response.data;
+          const { userId,username, token } = response.data;
   
           // Store in localStorage
+          localStorage.setItem("userId",userId);
           localStorage.setItem("username", username);
           localStorage.setItem("token", token);
           localStorage.setItem("user", "authenticated"); // Mock authentication
