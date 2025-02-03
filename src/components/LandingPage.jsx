@@ -42,7 +42,7 @@ export function LandingPage() {
       homeRef.current?.scrollIntoView({ behavior: 'smooth' });
     } else if (path === '/login') {
       navigate('/login');
-    } else if (path === '/signup') {
+    } else if (path === '/register') {
       navigate('/register');
     } else if (path === '/profile') {
       navigate('/profile');
@@ -52,7 +52,7 @@ export function LandingPage() {
       console.log('Buying a car');
     } else if (path === '/sell') {
       // Add sell car logic
-      navigate('/sell');
+      navigate('/login');
       console.log('Selling a car');
     } else if (path === '/service') {
       // Add service booking logic
@@ -92,7 +92,6 @@ export function LandingPage() {
               <div className="user-menu">
                 <button onClick={() => handleNavigation('/login')}>Login</button>
                 <button onClick={() => handleNavigation('/register')}>Sign Up</button>
-                <button onClick={() => handleNavigation('/profile')}>Profile</button>
               </div>
             )}
           </div>

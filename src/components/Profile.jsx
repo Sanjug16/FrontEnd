@@ -44,6 +44,62 @@ const Profile = () => {
     }
   };
 
+  // Function to handle car selling
+  const handleSell = async (carId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const carToSell = userCars.find(car => car.carId === carId);
+      if (!carToSell) {
+        alert("Car not found");
+        return;
+      }
+
+      // Create a new object with status updated to "AVAILABLE"
+      const updatedCar = { ...carToSell, status: "AVAILABLE" };
+
+      await axios.put(`http://localhost:6969/cars/updateCar`, updatedCar, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Refresh the car list after successful update
+      fetchUserCars(localStorage.getItem("userId"));
+    } catch (error) {
+      console.error("Error updating car status:", error);
+      alert("Failed to update car status. Please try again.");
+    }
+  };
+
+    // Function to handle car selling
+    const handleRemoveSale = async (carId) => {
+      try {
+        const token = localStorage.getItem("token");
+        const carToSell = userCars.find(car => car.carId === carId);
+        if (!carToSell) {
+          alert("Car not found");
+          return;
+        }
+  
+        // Create a new object with status updated to "AVAILABLE"
+        const updatedCar = { ...carToSell, status: "OWNED" };
+  
+        await axios.put(`http://localhost:6969/cars/updateCar`, updatedCar, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        // Refresh the car list after successful update
+        fetchUserCars(localStorage.getItem("userId"));
+      } catch (error) {
+        console.error("Error updating car status:", error);
+        alert("Failed to update car status. Please try again.");
+      }
+    };
+
   const handleAddCar = () => {
     navigate("/addcar"); // Navigate to add car page
   };
@@ -101,6 +157,12 @@ const Profile = () => {
                     <p>Year: {car.year}</p>
                     <p>Mileage: {car.mileage} km</p>
                     <p>Location: {car.carLocation}</p>
+                    <p>Status: {car.status}</p>
+                    <div className = "sale-buttons">
+                    <button className="service-button" onClick={() => handleService(car.carId)}>Service</button>
+                    <button className="sell-button" onClick={() => handleSell(car.carId)}>Sell</button>
+                    <button className="remove-sale-button" onClick={() =>handleRemoveSale(car.carId)}>Remove from sale</button>
+                    </div>
                   </div>
                 </div>
               ))}
