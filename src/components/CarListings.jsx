@@ -21,6 +21,11 @@ export function CarListings() {
 
   const defaultCarAnimation = "https://media.istockphoto.com/id/1042273960/photo/small-cute-blue-car.webp?a=1&b=1&s=612x612&w=0&k=20&c=JI1CIEzgwI4CtyMN7VnDjKVquxtA-VUycde6TN-VczQ=https://media.istockphoto.com/id/1042273960/photo/small-cute-blue-car.webp?a=1&b=1&s=612x612&w=0&k=20&c=JI1CIEzgwI4CtyMN7VnDjKVquxtA-VUycde6TN-VczQ=";
 
+  const [showOfferPopup, setShowOfferPopup] = useState(false);
+  const [selectedCar, setSelectedCar] = useState(null);
+  const [offerAmount, setOfferAmount] = useState('');
+  const [popupAnimation, setPopupAnimation] = useState('');
+  const [overlayAnimation, setOverlayAnimation] = useState('');
   useEffect(() => {
     const checkLoginStatus = () => {
       const token = localStorage.getItem('token');
@@ -99,8 +104,46 @@ export function CarListings() {
   };
 
   const handleMakeOffer = (carId) => {
-    console.log(`Making offer for car ${carId}`);
+    const car = cars.find(c => c.carId === carId);
+    if (!car) {
+      console.error("Car not found for ID:", carId);
+      return;
+    }
+    setSelectedCar(car);
+    setShowOfferPopup(true);
+    setOfferAmount('');
   };
+  
+  // Debugging: Check when showOfferPopup changes
+  useEffect(() => {
+    console.log("showOfferPopup changed:", showOfferPopup);
+  }, [showOfferPopup]);
+
+  const handleCloseOffer = () => {
+    setPopupAnimation('shrink-cancel');
+    setOverlayAnimation('fade-out');
+    setTimeout(() => {
+      setShowOfferPopup(false);
+      setSelectedCar(null);
+      setOfferAmount('');
+      setPopupAnimation('');
+      setOverlayAnimation('');
+    }, 1200);
+  };
+
+const handleSubmitOffer = () => {
+  setPopupAnimation('shrink-success');
+  setOverlayAnimation('fade-out');
+  setTimeout(() => {
+    console.log(`Offer submitted for ${selectedCar?.make} ${selectedCar?.model}: $${offerAmount}`);
+    setShowOfferPopup(false);
+    setSelectedCar(null);
+    setOfferAmount('');
+    setPopupAnimation('');
+    setOverlayAnimation('');
+  }, 1200);
+};
+
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -191,90 +234,125 @@ export function CarListings() {
         </div>
 
         <div className="car-cards-section">
-  {expandedCard ? (
-    <div className="expanded-overlay" ref={cardRef}>
-      {filteredCars
-        .filter(car => car.carId === expandedCard)
-        .map(car => (
-          <div key={car.carId} className="car-card expanded">
-            <button className="back-button" onClick={handleBack}>
-              <i className="fas fa-arrow-left"></i> Back
-            </button>
-            <div className="expanded-image">
-              <img 
-                src={car.carImageUrls?.[0] || defaultCarAnimation} 
-                alt={`${car.make} ${car.model}`}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = defaultCarAnimation;
-                }}
-              />
+          {expandedCard ? (
+            <div className="expanded-overlay" ref={cardRef}>
+              {filteredCars
+                .filter(car => car.carId === expandedCard)
+                .map(car => (
+                  <div key={car.carId} className="car-card expanded">
+                    <button className="back-button" onClick={handleBack}>
+                      <i className="fas fa-arrow-left"></i> Back
+                    </button>
+                    <div className="expanded-image">
+                      <img 
+                        src={car.carImageUrls?.[0] || defaultCarAnimation} 
+                        alt={`${car.make} ${car.model}`}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = defaultCarAnimation;
+                        }}
+                      />
+                    </div>
+                    <div className="car-info">
+                      <h2>{car.make} {car.model}</h2>
+                      <p className="price">{car.price}</p>
+                      <div className="info-grid">
+                        <div className="info-item">
+                          <span className="label">Year:</span>
+                          <span>{car.year}</span>
+                        </div>
+                        <div className="info-item">
+                          <span className="label">Mileage:</span>
+                          <span>{car.mileage} km</span>
+                        </div>
+                        <div className="info-item">
+                          <span className="label">Location:</span>
+                          <span>{car.carLocation}</span>
+                        </div>
+                        <div className="info-item">
+                          <span className="label">Price:</span>
+                          <span>{car.carPrice}</span>
+                        </div>
+                        <div className="info-item">
+                          <span className="label">Status:</span>
+                          <span>{car.status}</span>
+                        </div>
+                        <div className="info-item">
+                          <span className="label">Report ID:</span>
+                          <span>{car.conditionReportId}</span>
+                        </div>
+                      </div>
+                      <button 
+                        className="make-offer-btn"
+                        onClick={() => handleMakeOffer(car.carId)}
+                      >
+                        Make an Offer
+                      </button>
+                    </div>
             </div>
-            <div className="car-info">
-              <h2>{car.make} {car.model}</h2>
-              <p className="price">{car.price}</p>
-              <div className="info-grid">
-                <div className="info-item">
-                  <span className="label">Year:</span>
-                  <span>{car.year}</span>
-                </div>
-                <div className="info-item">
-                  <span className="label">Mileage:</span>
-                  <span>{car.mileage} km</span>
-                </div>
-                <div className="info-item">
-                  <span className="label">Location:</span>
-                  <span>{car.carLocation}</span>
-                </div>
-                <div className="info-item">
-                  <span className="label">Price:</span>
-                  <span>{car.carPrice}</span>
-                </div>
-                <div className="info-item">
-                  <span className="label">Status:</span>
-                  <span>{car.status}</span>
-                </div>
-                <div className="info-item">
-                  <span className="label">Report ID:</span>
-                  <span>{car.conditionReportId}</span>
+          ))}
+        </div>
+          ) : (
+            filteredCars.map(car => (
+              <div key={car.carId} className="car-card">
+                <img 
+                  src={car.carImageUrls?.[0] || "https://via.placeholder.com/150"}
+                  alt={`${car.make} ${car.model}`}
+                />
+                <div className="car-info">
+                  <h3>{car.make} {car.model}</h3>
+                  <p>Year: {car.year}</p>
+                  <p>Mileage: {car.mileage} km</p>
+                  <p>Location: {car.carLocation}</p>
+                  <p className="price">{car.price}</p>
+                  <button 
+                    className="view-more-btn"
+                    onClick={() => handleViewMore(car.carId)}
+                  >
+                    View More
+                  </button>
                 </div>
               </div>
-              <button 
-                className="make-offer-btn"
-                onClick={() => handleMakeOffer(car.carId)}
-              >
-                Make an Offer
-              </button>
-            </div>
-          </div>
-        ))}
-    </div>
-  ) : (
-    filteredCars.map(car => (
-      <div key={car.carId} className="car-card">
-        <img 
-          src={car.carImageUrls?.[0] || "https://via.placeholder.com/150"}
-          alt={`${car.make} ${car.model}`}
-        />
-        <div className="car-info">
-          <h3>{car.make} {car.model}</h3>
-          <p>Year: {car.year}</p>
-          <p>Mileage: {car.mileage} km</p>
-          <p>Location: {car.carLocation}</p>
-          <p className="price">{car.price}</p>
-          <button 
-            className="view-more-btn"
-            onClick={() => handleViewMore(car.carId)}
-          >
-            View More
-          </button>
+            ))
+          )}
         </div>
       </div>
-    ))
-  )}
-</div>
-
-      </div>
+      {showOfferPopup && selectedCar && (
+        <div className={`offer-overlay ${overlayAnimation}`}>
+          <div className={`offer-popup ${popupAnimation}`}>
+            <h2>Make a Request</h2>
+            <div className="offer-content">
+              <h3>{selectedCar.make} {selectedCar.model}</h3>
+              <p>Current Price: {selectedCar.price}</p>
+              <div className="offer-input">
+                <label htmlFor="offerAmount">Your Offer Amount ($)</label>
+                <input
+                  type="number"
+                  id="offerAmount"
+                  value={offerAmount}
+                  onChange={(e) => setOfferAmount(e.target.value)}
+                  placeholder="Enter your offer amount"
+                />
+              </div>
+              <div className="offer-buttons">
+                <button 
+                  className="back-btn" 
+                  onClick={handleCloseOffer}
+                >
+                  Back
+                </button>
+                <button 
+                  className="request-btn" 
+                  onClick={handleSubmitOffer}
+                  disabled={!offerAmount}
+                >
+                  Request
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
